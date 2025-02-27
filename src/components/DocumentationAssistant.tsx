@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import Image from 'next/image';
 
 type ThemeType = 'green' | 'blue' | 'amber';
 
@@ -514,14 +515,25 @@ export default function DocumentationAssistant() {
         <div className={`min-h-screen bg-black ${themeClasses.text} p-2 sm:p-4 font-mono flex flex-col`}>
             <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center">
-                    <div className="flex space-x-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <div className="flex items-center">
+                        <Image 
+                            src="/logo.svg" 
+                            alt="DOX Logo" 
+                            width={28} 
+                            height={28} 
+                            className="filter brightness-150"
+                        />
                     </div>
-                    <div className="ml-4 text-gray-400 text-sm">dox@terminal: ~/documentation</div>
+                    <div className="ml-3 text-gray-400 text-sm flex items-center">
+                        <span className="hidden sm:inline">dox@terminal:</span>
+                        <span className="sm:hidden">dox:</span>
+                        <span className="text-gray-300 ml-1">~/documentation</span>
+                    </div>
                 </div>
-                <div className="text-gray-500 text-xs hidden sm:block">DOX CLI v1.0.0</div>
+                <div className="text-gray-500 text-xs hidden sm:flex items-center">
+                    <span className={`${themeClasses.text} mr-1`}>●</span> 
+                    DOX CLI v1.0.0
+                </div>
             </div>
             
             <div className="flex-1 flex flex-col relative">
@@ -546,27 +558,48 @@ export default function DocumentationAssistant() {
                             {item.type === 'error' && (
                                 <div className="text-red-400 pl-3 sm:pl-4 border-l-2 border-red-700">
                                     {item.content}
-                                </div>
-                            )}
+                </div>
+            )}
                         </div>
                     ))}
                     
                     {/* Input field inside terminal */}
                     <div className="flex items-start mt-1">
                         <span className={`${themeClasses.prompt} mr-2 flex-shrink-0 mt-0.5`}>user@dox:~$</span>
-                        <form onSubmit={handleSubmit} className="flex-1 flex items-center relative">
-                            <span className="animate-pulse text-white absolute left-0">▌</span>
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                disabled={loading}
-                                className="flex-1 bg-transparent text-white outline-none border-none py-0.5 pl-4 w-full"
-                                placeholder={loading ? "Processing..." : "Type your question..."}
-                                autoFocus
-                            />
-                        </form>
+                        <div className="flex-1 flex items-center relative">
+                            <style jsx>{`
+                                /* Custom caret styling */
+                                input {
+                                    caret-color: ${theme === 'green' ? '#4ade80' : theme === 'blue' ? '#60a5fa' : '#fbbf24'};
+                                    animation: blink-caret 1s step-end infinite;
+                                }
+                                
+                                @keyframes blink-caret {
+                                    from, to { caret-color: ${theme === 'green' ? '#4ade80' : theme === 'blue' ? '#60a5fa' : '#fbbf24'}; }
+                                    50% { caret-color: transparent; }
+                                }
+                                
+                                /* Placeholder styling */
+                                input::placeholder {
+                                    color: ${theme === 'green' ? 'rgba(74, 222, 128, 0.5)' : 
+                                             theme === 'blue' ? 'rgba(96, 165, 250, 0.5)' : 
+                                             'rgba(251, 191, 36, 0.5)'};
+                                    opacity: 0.7;
+                                }
+                            `}</style>
+                            <form onSubmit={handleSubmit} className="w-full">
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    disabled={loading}
+                                    className={`flex-1 bg-transparent ${themeClasses.text} outline-none border-none py-0.5 pl-0.5 w-full font-mono text-base`}
+                                    placeholder={loading ? "Processing..." : "Type your question..."}
+                                    autoFocus
+                                />
+                            </form>
+                        </div>
                     </div>
                 </div>
                 
