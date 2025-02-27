@@ -28,6 +28,13 @@ export default function DocumentationAssistant() {
             terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
         }
     }, [history]);
+    
+    // Auto-scroll to bottom when input changes
+    useEffect(() => {
+        if (terminalRef.current) {
+            terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+        }
+    }, [input]);
 
     // Focus input when component mounts or when clicking on terminal
     useEffect(() => {
@@ -505,7 +512,7 @@ export default function DocumentationAssistant() {
 
     return (
         <div className={`min-h-screen bg-black ${themeClasses.text} p-2 sm:p-4 font-mono flex flex-col`}>
-            <div className="mb-2 flex items-center">
+            <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center">
                     <div className="flex space-x-2">
                         <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -514,20 +521,21 @@ export default function DocumentationAssistant() {
                     </div>
                     <div className="ml-4 text-gray-400 text-sm">dox@terminal: ~/documentation</div>
                 </div>
+                <div className="text-gray-500 text-xs hidden sm:block">DOX CLI v1.0.0</div>
             </div>
             
             <div className="flex-1 flex flex-col relative">
                 <div 
                     ref={terminalRef}
-                    className={`flex-1 overflow-auto mb-4 p-2 sm:p-3 ${themeClasses.bg} rounded-t border border-gray-700 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900`}
+                    className={`flex-1 overflow-auto p-2 sm:p-3 ${themeClasses.bg} rounded border border-gray-700 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900`}
                     onClick={handleTerminalClick}
                 >
                     {history.map((item, index) => (
                         <div key={index} className="mb-4 last:mb-2">
                             {item.type === 'command' && (
                                 <div className="flex items-start">
-                                    <span className={`${themeClasses.prompt} mr-2`}>user@dox:~$ </span> 
-                                    <span className="text-white">{item.content}</span>
+                                    <span className={`${themeClasses.prompt} mr-2 flex-shrink-0`}>user@dox:~$ </span> 
+                                    <span className="text-white break-words">{item.content}</span>
                                 </div>
                             )}
                             {item.type === 'response' && (
@@ -538,28 +546,33 @@ export default function DocumentationAssistant() {
                             {item.type === 'error' && (
                                 <div className="text-red-400 pl-3 sm:pl-4 border-l-2 border-red-700">
                                     {item.content}
-                                </div>
-                            )}
+                </div>
+            )}
                         </div>
                     ))}
+                    
+                    {/* Input field inside terminal */}
+                    <div className="flex items-start mt-1">
+                        <span className={`${themeClasses.prompt} mr-2 flex-shrink-0 mt-0.5`}>user@dox:~$</span>
+                        <form onSubmit={handleSubmit} className="flex-1 flex items-center relative">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                disabled={loading}
+                                className="flex-1 bg-transparent text-white outline-none border-none py-0.5 pr-4 w-full"
+                                placeholder={loading ? "Processing..." : "Type your question..."}
+                                autoFocus
+                            />
+                            <span className="animate-pulse text-white absolute right-0">▌</span>
+                        </form>
+                    </div>
                 </div>
                 
-                <div className={`sticky bottom-0 p-2 ${themeClasses.bg} border border-gray-700 rounded-b`}>
-                    <form onSubmit={handleSubmit} className="flex items-center">
-                        <span className={`${themeClasses.prompt} hidden sm:inline`}>user@dox:~$</span>
-                        <span className={`${themeClasses.prompt} sm:hidden`}>$</span>
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            disabled={loading}
-                            className="flex-1 bg-transparent text-white outline-none border-none ml-2"
-                            placeholder={loading ? "Processing..." : "Type your question..."}
-                            autoFocus
-                        />
-                        <span className="animate-pulse text-white">▌</span>
-                    </form>
+                <div className="mt-2 text-xs text-gray-500 flex justify-between items-center px-1">
+                    <div>Type <span className="text-gray-400">help</span> for available commands</div>
+                    <div>{loading ? 'Processing...' : 'Ready'}</div>
                 </div>
             </div>
         </div>
