@@ -100,7 +100,11 @@ export default function DocumentationAssistant() {
             if (i % 3 === 0) {
                 // Regular text part
                 if (parts[i].trim()) {
-                    formattedParts.push(formatTextWithBullets(parts[i]));
+                    formattedParts.push(
+                        <div key={`text-${i}`} className="mb-2">
+                            {formatTextWithBullets(parts[i])}
+                        </div>
+                    );
                 }
             } else if (i % 3 === 1) {
                 // Language identifier (if any)
@@ -111,13 +115,46 @@ export default function DocumentationAssistant() {
                 const codeContent = parts[i].trim();
                 const codeIndex = i;
                 
+                // Map common language aliases to their proper names for syntax highlighting
+                const languageMap: Record<string, string> = {
+                    'js': 'javascript',
+                    'ts': 'typescript',
+                    'jsx': 'jsx',
+                    'tsx': 'tsx',
+                    'py': 'python',
+                    'rb': 'ruby',
+                    'go': 'go',
+                    'java': 'java',
+                    'c': 'c',
+                    'cpp': 'cpp',
+                    'cs': 'csharp',
+                    'php': 'php',
+                    'html': 'html',
+                    'css': 'css',
+                    'scss': 'scss',
+                    'json': 'json',
+                    'yaml': 'yaml',
+                    'yml': 'yaml',
+                    'md': 'markdown',
+                    'sh': 'bash',
+                    'bash': 'bash',
+                    'shell': 'bash',
+                    'sql': 'sql',
+                    'text': 'text',
+                    'plaintext': 'text',
+                    'txt': 'text'
+                };
+                
+                const mappedLanguage = languageMap[language.toLowerCase()] || language;
+                
                 formattedParts.push(
-                    <div key={i} className="my-3 rounded overflow-hidden relative group">
+                    <div key={`code-${i}`} className="my-4 rounded overflow-hidden relative group">
                         <div className="bg-gray-800 text-gray-400 text-xs px-3 py-1 flex justify-between items-center">
-                            <span>{language}</span>
+                            <span className="font-mono">{mappedLanguage}</span>
                             <button 
                                 onClick={() => copyToClipboard(codeContent, codeIndex)}
                                 className="ml-2 p-1 rounded transition-all duration-200 hover:bg-gray-700"
+                                title="Copy to clipboard"
                             >
                                 {copiedCode === codeIndex ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
@@ -132,14 +169,18 @@ export default function DocumentationAssistant() {
                             </button>
                         </div>
                         <SyntaxHighlighter 
-                            language={language} 
+                            language={mappedLanguage}
                             style={atomDark}
                             customStyle={{
                                 margin: 0,
                                 padding: '0.75rem',
                                 borderRadius: '0',
                                 fontSize: '0.9rem',
+                                lineHeight: '1.4',
+                                overflowX: 'auto'
                             }}
+                            showLineNumbers={codeContent.split('\n').length > 3}
+                            wrapLines={true}
                         >
                             {codeContent}
                         </SyntaxHighlighter>
@@ -159,6 +200,39 @@ export default function DocumentationAssistant() {
         // URL regex pattern
         const urlPattern = /(https?:\/\/[^\s]+)/g;
         
+        // Function to process text formatting (bold, italic, inline code, strikethrough)
+        const processTextFormatting = (text: string) => {
+            // Process bold text (**text**)
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Process italic text (*text*)
+            formattedText = formattedText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+            
+            // Process inline code (`text`)
+            formattedText = formattedText.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-gray-200 px-1 py-0.5 rounded text-sm">$1</code>');
+            
+            // Process strikethrough (~~text~~)
+            formattedText = formattedText.replace(/~~(.*?)~~/g, '<del>$1</del>');
+            
+            // Process links in format [text](url)
+            formattedText = formattedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="${themeClasses.link.replace('underline', 'hover:underline')}">${text}</a>`;
+            });
+            
+            // Return text with HTML tags
+            if (formattedText !== text) {
+                return <span dangerouslySetInnerHTML={{ __html: formattedText }} />;
+            }
+            
+            // Return plain text if no formatting
+            return text;
+        };
+        
+        // Process horizontal rule
+        const processHorizontalRule = (line: string) => {
+            return line.match(/^(\s*[-*_]){3,}\s*$/) !== null;
+        };
+        
         return (
             <div className="space-y-1">
                 {lines.map((line, idx) => {
@@ -169,30 +243,50 @@ export default function DocumentationAssistant() {
                         
                         const headingClasses = [
                             "font-bold text-white", 
-                            headingLevel === 1 ? "text-lg mt-3" : "mt-2"
+                            headingLevel === 1 ? "text-lg mt-4 mb-2" : 
+                            headingLevel === 2 ? "text-base mt-3 mb-1" : "mt-2"
                         ].join(' ');
                         
                         return (
                             <div key={idx} className={headingClasses}>
-                                {headingText}
+                                {processTextFormatting(headingText)}
                             </div>
                         );
                     }
                     
+                    // Check if line is a horizontal rule
+                    if (processHorizontalRule(line)) {
+                        return <hr key={idx} className="my-3 border-gray-700" />;
+                    }
+                    
                     // Check if line is a bullet point and determine indentation level
-                    const bulletMatch = line.match(/^(\s*)[-*•]\s(.*)/);
+                    // Enhanced regex to catch more bullet point formats including standalone • characters
+                    const bulletMatch = line.match(/^(\s*)([-*•]|\d+\.)\s*(.*)/);
                     if (bulletMatch) {
-                        const [, indent, content] = bulletMatch;
+                        const [, indent, bulletType, content] = bulletMatch;
                         const indentLevel = Math.floor(indent.length / 2);
                         const indentClass = `ml-${4 + indentLevel * 4}`;
+                        
+                        // Handle empty bullet points (just the bullet character)
+                        if (!content && bulletType === '•') {
+                            return (
+                                <div key={idx} className={`flex ${indentClass} mb-1`}>
+                                    <span className="mr-3">•</span>
+                                    <span></span>
+                                </div>
+                            );
+                        }
                         
                         // Process links in bullet points
                         const parts = content.split(urlPattern);
                         
+                        // Determine bullet display (• for all bullet types, or the number for numbered lists)
+                        const bulletDisplay = bulletType.match(/\d+\./) ? bulletType : '•';
+                        
                         return (
-                            <div key={idx} className={`flex ${indentClass}`}>
-                                <span className="mr-3">•</span>
-                                <span>
+                            <div key={idx} className={`flex ${indentClass} mb-1`}>
+                                <span className="mr-3 flex-shrink-0">{bulletDisplay}</span>
+                                <span className="flex-1">
                                     {parts.map((part, partIdx) => {
                                         if (part.match(urlPattern)) {
                                             return (
@@ -207,9 +301,23 @@ export default function DocumentationAssistant() {
                                                 </a>
                                             );
                                         }
-                                        return <span key={`${idx}-text-${partIdx}`}>{part}</span>;
+                                        return <span key={`${idx}-text-${partIdx}`}>{processTextFormatting(part)}</span>;
                                     })}
                                 </span>
+                            </div>
+                        );
+                    }
+                    
+                    // Check if line is a blockquote (starts with >)
+                    const quoteMatch = line.match(/^(\s*)>\s*(.*)/);
+                    if (quoteMatch) {
+                        const [, indent, content] = quoteMatch;
+                        const indentLevel = Math.floor(indent.length / 2);
+                        const indentClass = `ml-${indentLevel * 4}`;
+                        
+                        return (
+                            <div key={idx} className={`${indentClass} pl-4 border-l-4 border-gray-600 italic text-gray-300 my-2`}>
+                                {processTextFormatting(content)}
                             </div>
                         );
                     }
@@ -239,7 +347,7 @@ export default function DocumentationAssistant() {
                                         </a>
                                     );
                                 }
-                                return <span key={`${idx}-text-${partIdx}`}>{part}</span>;
+                                return <span key={`${idx}-text-${partIdx}`}>{processTextFormatting(part)}</span>;
                             })}
                         </div>
                     );
@@ -250,6 +358,7 @@ export default function DocumentationAssistant() {
 
     const handleCommand = (cmd: string) => {
         const command = cmd.trim().toLowerCase();
+        const commandParts = command.split(' ');
         
         // Handle built-in commands
         if (command === 'clear') {
@@ -262,7 +371,7 @@ export default function DocumentationAssistant() {
                          '• help     - Show this help message\n' +
                          '• clear    - Clear the terminal\n' +
                          '• history  - Show command history\n' +
-                         '• theme    - Toggle between color themes\n' +
+                         '• theme    - Show available themes\n' +
                          '• version  - Show current version\n' +
                          '• about    - Show information about DOX CLI\n\n' +
                          'Any other input will be treated as a programming question.'
@@ -283,14 +392,37 @@ export default function DocumentationAssistant() {
                 }]);
             }
             return true;
-        } else if (command === 'theme') {
-            const nextTheme: ThemeType = theme === 'green' ? 'blue' : theme === 'blue' ? 'amber' : 'green';
-            setTheme(nextTheme);
-            setHistory(prev => [...prev, { 
-                type: 'response', 
-                content: `Theme changed to ${nextTheme}.`
-            }]);
-            return true;
+        } else if (commandParts[0] === 'theme') {
+            if (commandParts.length === 1) {
+                // Show available themes if no theme specified
+                setHistory(prev => [...prev, { 
+                    type: 'response', 
+                    content: '# Available Themes\n\n' +
+                             '• green - Default theme with green text\n' +
+                             '• blue  - Cool theme with blue text\n' +
+                             '• amber - Warm theme with amber text\n\n' +
+                             `Current theme: ${theme}\n\n` +
+                             'To change theme, type: theme [color]'
+                }]);
+                return true;
+            } else {
+                // Set theme if specified
+                const requestedTheme = commandParts[1];
+                if (['green', 'blue', 'amber'].includes(requestedTheme)) {
+                    setTheme(requestedTheme as ThemeType);
+                    setHistory(prev => [...prev, { 
+                        type: 'response', 
+                        content: `Theme changed to ${requestedTheme}.`
+                    }]);
+                    return true;
+                } else {
+                    setHistory(prev => [...prev, { 
+                        type: 'error', 
+                        content: `Invalid theme: ${requestedTheme}. Available themes: green, blue, amber.`
+                    }]);
+                    return true;
+                }
+            }
         } else if (command === 'version') {
             setHistory(prev => [...prev, { 
                 type: 'response', 
@@ -332,7 +464,7 @@ export default function DocumentationAssistant() {
         
         // Start loading
         setLoading(true);
-        
+
         try {
             // Add "thinking" message
             setHistory(prev => [...prev, { type: 'response', content: 'Processing query...' }]);
@@ -372,7 +504,7 @@ export default function DocumentationAssistant() {
     };
 
     return (
-        <div className={`min-h-screen bg-black ${themeClasses.text} p-4 font-mono flex flex-col`}>
+        <div className={`min-h-screen bg-black ${themeClasses.text} p-2 sm:p-4 font-mono flex flex-col`}>
             <div className="mb-2 flex items-center">
                 <div className="flex items-center">
                     <div className="flex space-x-2">
@@ -387,7 +519,7 @@ export default function DocumentationAssistant() {
             <div className="flex-1 flex flex-col relative">
                 <div 
                     ref={terminalRef}
-                    className={`flex-1 overflow-auto mb-4 p-2 ${themeClasses.bg} rounded-t border border-gray-700`}
+                    className={`flex-1 overflow-auto mb-4 p-2 sm:p-3 ${themeClasses.bg} rounded-t border border-gray-700 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900`}
                     onClick={handleTerminalClick}
                 >
                     {history.map((item, index) => (
@@ -399,12 +531,12 @@ export default function DocumentationAssistant() {
                                 </div>
                             )}
                             {item.type === 'response' && (
-                                <div className={`${themeClasses.response} pl-4 border-l-2 border-gray-700`}>
+                                <div className={`${themeClasses.response} pl-3 sm:pl-4 border-l-2 border-gray-700`}>
                                     {formatResponse(item.content)}
                                 </div>
                             )}
                             {item.type === 'error' && (
-                                <div className="text-red-400 pl-4 border-l-2 border-red-700">
+                                <div className="text-red-400 pl-3 sm:pl-4 border-l-2 border-red-700">
                                     {item.content}
                                 </div>
                             )}
@@ -414,7 +546,8 @@ export default function DocumentationAssistant() {
                 
                 <div className={`sticky bottom-0 p-2 ${themeClasses.bg} border border-gray-700 rounded-b`}>
                     <form onSubmit={handleSubmit} className="flex items-center">
-                        <span className={themeClasses.prompt}>user@dox:~$</span>
+                        <span className={`${themeClasses.prompt} hidden sm:inline`}>user@dox:~$</span>
+                        <span className={`${themeClasses.prompt} sm:hidden`}>$</span>
                         <input
                             ref={inputRef}
                             type="text"
