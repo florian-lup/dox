@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchAndExplain } from './docSearch';
+import { AxiosError } from 'axios';
+
+// Validate environment variables
+const validateEnv = () => {
+    if (!process.env.TAVILY_API_KEY || !process.env.ANTHROPIC_API_KEY) {
+        return false;
+    }
+    return true;
+};
 
 export async function POST(req: NextRequest) {
     try {
+        // Check environment variables
+        if (!validateEnv()) {
+            return NextResponse.json(
+                { error: 'Server configuration error: Missing API keys' },
+                { status: 500 }
+            );
+        }
+
         const body = await req.json();
         const { query } = body;
 
@@ -15,10 +32,24 @@ export async function POST(req: NextRequest) {
 
         const explanation = await searchAndExplain(query);
         return NextResponse.json({ explanation });
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error processing request:', error);
+        
+        // Handle specific error types
+        if (error instanceof AxiosError) {
+            const status = error.response?.status || 500;
+            const message = error.response?.data?.message || error.message || 'API request failed';
+            
+            return NextResponse.json(
+                { error: message },
+                { status }
+            );
+        }
+        
+        // Handle generic errors
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         return NextResponse.json(
-            { error: 'Failed to process request' },
+            { error: errorMessage },
             { status: 500 }
         );
     }

@@ -10,10 +10,11 @@ const model = new ChatAnthropic({
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+// Create the search tool
 const searchTool = new TavilySearchResults({
     apiKey: process.env.TAVILY_API_KEY,
-    maxResults: 5,
-    searchDepth: "deep",
+    maxResults: 3,
+    searchDepth: "basic",
 });
 
 // Create prompt template for generating explanations
@@ -38,7 +39,14 @@ const chain = RunnableSequence.from([
     {
         searchResults: async (input: { query: string }) => {
             try {
+                // Validate query
+                if (!input.query || typeof input.query !== 'string' || input.query.trim() === '') {
+                    throw new Error('Invalid or empty search query');
+                }
+                
+                // Perform the search
                 const results = await searchTool.invoke(input.query);
+                
                 // Parse results if they're returned as a string
                 const parsedResults = typeof results === 'string' ? JSON.parse(results) : results;
                 
@@ -49,10 +57,9 @@ const chain = RunnableSequence.from([
                         .map(r => `${r.title}\n${r.content}`)
                         .join('\n\n');
                 } else {
-                    console.error('Unexpected results structure:', parsedResults);
                     return 'No relevant results found.';
                 }
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error('Error processing search results:', error);
                 throw error;
             }
@@ -66,11 +73,16 @@ const chain = RunnableSequence.from([
 
 export async function searchAndExplain(query: string) {
     try {
+        // Validate query
+        if (!query || typeof query !== 'string' || query.trim() === '') {
+            throw new Error('Invalid or empty search query');
+        }
+        
         const result = await chain.invoke({
             query,
         });
         return result;
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error in searchAndExplain:", error);
         throw error;
     }
