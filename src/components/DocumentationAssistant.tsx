@@ -546,8 +546,8 @@ export default function DocumentationAssistant() {
                             {item.type === 'error' && (
                                 <div className="text-red-400 pl-3 sm:pl-4 border-l-2 border-red-700">
                                     {item.content}
-                </div>
-            )}
+                                </div>
+                            )}
                         </div>
                     ))}
                     
@@ -555,17 +555,17 @@ export default function DocumentationAssistant() {
                     <div className="flex items-start mt-1">
                         <span className={`${themeClasses.prompt} mr-2 flex-shrink-0 mt-0.5`}>user@dox:~$</span>
                         <form onSubmit={handleSubmit} className="flex-1 flex items-center relative">
+                            <span className="animate-pulse text-white absolute left-0">▌</span>
                             <input
                                 ref={inputRef}
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 disabled={loading}
-                                className="flex-1 bg-transparent text-white outline-none border-none py-0.5 pr-4 w-full"
+                                className="flex-1 bg-transparent text-white outline-none border-none py-0.5 pl-4 w-full"
                                 placeholder={loading ? "Processing..." : "Type your question..."}
                                 autoFocus
                             />
-                            <span className="animate-pulse text-white absolute right-0">▌</span>
                         </form>
                     </div>
                 </div>
