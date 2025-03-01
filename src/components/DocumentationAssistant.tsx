@@ -558,8 +558,8 @@ export default function DocumentationAssistant() {
                             {item.type === 'error' && (
                                 <div className="text-red-400 pl-3 sm:pl-4 border-l-2 border-red-700">
                                     {item.content}
-                </div>
-            )}
+                                </div>
+                            )}
                         </div>
                     ))}
                     
@@ -571,12 +571,7 @@ export default function DocumentationAssistant() {
                                 /* Custom caret styling */
                                 input {
                                     caret-color: ${theme === 'green' ? '#4ade80' : theme === 'blue' ? '#60a5fa' : '#fbbf24'};
-                                    animation: blink-caret 1s step-end infinite;
-                                }
-                                
-                                @keyframes blink-caret {
-                                    from, to { caret-color: ${theme === 'green' ? '#4ade80' : theme === 'blue' ? '#60a5fa' : '#fbbf24'}; }
-                                    50% { caret-color: transparent; }
+                                    color: white;
                                 }
                                 
                                 /* Placeholder styling */
