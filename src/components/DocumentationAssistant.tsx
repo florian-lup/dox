@@ -61,7 +61,8 @@ export default function DocumentationAssistant() {
                     prompt: 'text-cyan-400',
                     response: 'text-blue-300',
                     highlight: 'bg-blue-900/30',
-                    link: 'text-blue-300 underline hover:text-blue-200'
+                    link: 'text-blue-300 underline hover:text-blue-200',
+                    scrollbarThumb: 'rgba(96, 165, 250, 0.5)',
                 };
             case 'amber':
                 return {
@@ -70,7 +71,8 @@ export default function DocumentationAssistant() {
                     prompt: 'text-yellow-400',
                     response: 'text-amber-300',
                     highlight: 'bg-amber-900/30',
-                    link: 'text-amber-300 underline hover:text-amber-200'
+                    link: 'text-amber-300 underline hover:text-amber-200',
+                    scrollbarThumb: 'rgba(251, 191, 36, 0.5)',
                 };
             case 'green':
             default:
@@ -80,7 +82,8 @@ export default function DocumentationAssistant() {
                     prompt: 'text-blue-400',
                     response: 'text-green-400',
                     highlight: 'bg-green-900/30',
-                    link: 'text-green-300 underline hover:text-green-200'
+                    link: 'text-green-300 underline hover:text-green-200',
+                    scrollbarThumb: 'rgba(74, 222, 128, 0.5)',
                 };
         }
     };
@@ -187,6 +190,7 @@ export default function DocumentationAssistant() {
                                 lineHeight: '1.4',
                                 overflowX: 'auto'
                             }}
+                            className="syntax-highlighter"
                             showLineNumbers={codeContent.split('\n').length > 3}
                             wrapLines={true}
                         >
@@ -512,15 +516,15 @@ export default function DocumentationAssistant() {
     };
 
     return (
-        <div className={`min-h-screen bg-black ${themeClasses.text} p-2 sm:p-4 font-mono flex flex-col`}>
+        <div className={`h-screen bg-black ${themeClasses.text} p-2 sm:p-4 font-mono flex flex-col overflow-hidden`}>
             <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center">
                     <div className="flex items-center">
                         <Image 
                             src="/logo.svg" 
                             alt="DOX Logo" 
-                            width={28} 
-                            height={28} 
+                            width={20} 
+                            height={20} 
                             className="filter brightness-150"
                         />
                     </div>
@@ -536,10 +540,100 @@ export default function DocumentationAssistant() {
                 </div>
             </div>
             
-            <div className="flex-1 flex flex-col relative">
+            <div className="flex-1 flex flex-col relative overflow-hidden">
+                <style jsx>{`
+                    /* Custom scrollbar styling */
+                    .terminal-container::-webkit-scrollbar {
+                        width: 10px;
+                        height: 10px;
+                    }
+                    
+                    .terminal-container::-webkit-scrollbar-track {
+                        background: transparent;
+                        margin: 6px;
+                    }
+                    
+                    .terminal-container::-webkit-scrollbar-thumb {
+                        background: ${themeClasses.scrollbarThumb};
+                        border-radius: 10px;
+                        transition: background-color 0.3s ease;
+                        /* Add padding to prevent overlap with container corners */
+                        border: 3px solid #111827; /* Match terminal background */
+                        background-clip: padding-box;
+                    }
+                    
+                    .terminal-container::-webkit-scrollbar-thumb:hover {
+                        background: ${themeClasses.scrollbarThumb};
+                    }
+                    
+                    .terminal-container::-webkit-scrollbar-thumb:active {
+                        background: ${themeClasses.scrollbarThumb};
+                    }
+                    
+                    .terminal-container::-webkit-scrollbar-corner {
+                        background: transparent;
+                    }
+                    
+                    /* Firefox scrollbar styling */
+                    .terminal-container {
+                        scrollbar-width: thin;
+                        scrollbar-color: ${themeClasses.scrollbarThumb} transparent;
+                    }
+                    
+                    /* Code block scrollbar styling */
+                    :global(.syntax-highlighter::-webkit-scrollbar) {
+                        width: 10px;
+                        height: 10px;
+                    }
+                    
+                    :global(.syntax-highlighter::-webkit-scrollbar-track) {
+                        background: transparent;
+                        margin: 6px;
+                    }
+                    
+                    :global(.syntax-highlighter::-webkit-scrollbar-thumb) {
+                        background: ${themeClasses.scrollbarThumb};
+                        border-radius: 10px;
+                        transition: background-color 0.3s ease;
+                        /* Add padding to prevent overlap with container corners */
+                        border: 3px solid #1e293b; /* Match code block background */
+                        background-clip: padding-box;
+                    }
+                    
+                    :global(.syntax-highlighter::-webkit-scrollbar-thumb:hover) {
+                        background: ${themeClasses.scrollbarThumb};
+                    }
+                    
+                    :global(.syntax-highlighter::-webkit-scrollbar-thumb:active) {
+                        background: ${themeClasses.scrollbarThumb};
+                    }
+                    
+                    :global(.syntax-highlighter::-webkit-scrollbar-corner) {
+                        background: transparent;
+                    }
+                    
+                    :global(.syntax-highlighter) {
+                        scrollbar-width: thin;
+                        scrollbar-color: ${themeClasses.scrollbarThumb} transparent;
+                    }
+                    
+                    /* Custom caret styling */
+                    input {
+                        caret-color: ${theme === 'green' ? '#4ade80' : theme === 'blue' ? '#60a5fa' : '#fbbf24'};
+                        color: white;
+                    }
+                    
+                    /* Placeholder styling */
+                    input::placeholder {
+                        color: ${theme === 'green' ? 'rgba(74, 222, 128, 0.5)' : 
+                                 theme === 'blue' ? 'rgba(96, 165, 250, 0.5)' : 
+                                 'rgba(251, 191, 36, 0.5)'};
+                        opacity: 0.7;
+                    }
+                `}</style>
                 <div 
                     ref={terminalRef}
-                    className={`flex-1 overflow-auto p-2 sm:p-3 ${themeClasses.bg} rounded border border-gray-700 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900`}
+                    className={`terminal-container flex-1 overflow-auto p-2 sm:p-3 ${themeClasses.bg} rounded-lg border border-gray-700`}
                     onClick={handleTerminalClick}
                 >
                     {history.map((item, index) => (
@@ -567,21 +661,6 @@ export default function DocumentationAssistant() {
                     <div className="flex items-start mt-1">
                         <span className={`${themeClasses.prompt} mr-2 flex-shrink-0 mt-0.5`}>user@dox:~$</span>
                         <div className="flex-1 flex items-center relative">
-                            <style jsx>{`
-                                /* Custom caret styling */
-                                input {
-                                    caret-color: ${theme === 'green' ? '#4ade80' : theme === 'blue' ? '#60a5fa' : '#fbbf24'};
-                                    color: white;
-                                }
-                                
-                                /* Placeholder styling */
-                                input::placeholder {
-                                    color: ${theme === 'green' ? 'rgba(74, 222, 128, 0.5)' : 
-                                             theme === 'blue' ? 'rgba(96, 165, 250, 0.5)' : 
-                                             'rgba(251, 191, 36, 0.5)'};
-                                    opacity: 0.7;
-                                }
-                            `}</style>
                             <form onSubmit={handleSubmit} className="w-full">
                                 <input
                                     ref={inputRef}
