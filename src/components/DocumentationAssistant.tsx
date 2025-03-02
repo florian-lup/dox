@@ -18,7 +18,7 @@ export default function DocumentationAssistant() {
     const [theme, setTheme] = useState<ThemeType>('green');
     const [copiedCode, setCopiedCode] = useState<number | null>(null);
     const [history, setHistory] = useState<HistoryItem[]>([
-        { type: 'response', content: 'Welcome to DOX CLI v1.0.0 - Documentation Assistant\nType your programming question and press Enter.\nType "help" to see available commands.' }
+        { type: 'response', content: 'Welcome to DOX CLI v1.0.0 - Your intelligent documentation assistant.\nType `help` to see available commands or ask any programming question to get started.' }
     ]);
     const terminalRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -63,6 +63,7 @@ export default function DocumentationAssistant() {
                     highlight: 'bg-blue-900/30',
                     link: 'text-blue-300 underline hover:text-blue-200',
                     scrollbarThumb: 'rgba(96, 165, 250, 0.5)',
+                    commandBg: 'bg-blue-900/15',
                 };
             case 'amber':
                 return {
@@ -73,6 +74,7 @@ export default function DocumentationAssistant() {
                     highlight: 'bg-amber-900/30',
                     link: 'text-amber-300 underline hover:text-amber-200',
                     scrollbarThumb: 'rgba(251, 191, 36, 0.5)',
+                    commandBg: 'bg-amber-900/15',
                 };
             case 'green':
             default:
@@ -84,6 +86,7 @@ export default function DocumentationAssistant() {
                     highlight: 'bg-green-900/30',
                     link: 'text-green-300 underline hover:text-green-200',
                     scrollbarThumb: 'rgba(74, 222, 128, 0.5)',
+                    commandBg: 'bg-green-900/15',
                 };
         }
     };
@@ -374,19 +377,19 @@ export default function DocumentationAssistant() {
         
         // Handle built-in commands
         if (command === 'clear') {
-            setHistory([{ type: 'response', content: 'Terminal cleared. What would you like to know?' }]);
+            setHistory([{ type: 'response', content: 'Terminal cleared. Ready for your next question or command.' }]);
             return true;
         } else if (command === 'help') {
             setHistory(prev => [...prev, { 
                 type: 'response', 
                 content: '# Available Commands\n\n' +
-                         '• help     - Show this help message\n' +
-                         '• clear    - Clear the terminal\n' +
-                         '• history  - Show command history\n' +
-                         '• theme    - Show available themes\n' +
-                         '• version  - Show current version\n' +
-                         '• about    - Show information about DOX CLI\n\n' +
-                         'Any other input will be treated as a programming question.'
+                         '• help     - Display all available commands and their usage\n' +
+                         '• clear    - Reset the terminal to its initial state\n' +
+                         '• history  - View a list of your previously executed commands\n' +
+                         '• theme    - Customize the terminal appearance with different color schemes\n' +
+                         '• version  - Display the current DOX CLI version information\n' +
+                         '• about    - Learn more about DOX CLI and its capabilities\n\n' +
+                         'For programming assistance, simply type your question directly.'
             }]);
             return true;
         } else if (command === 'history') {
@@ -410,11 +413,11 @@ export default function DocumentationAssistant() {
                 setHistory(prev => [...prev, { 
                     type: 'response', 
                     content: '# Available Themes\n\n' +
-                             '• green - Default theme with green text\n' +
-                             '• blue  - Cool theme with blue text\n' +
-                             '• amber - Warm theme with amber text\n\n' +
+                             '• green - Classic terminal theme with vibrant green text\n' +
+                             '• blue  - Modern theme with calming blue accents\n' +
+                             '• amber - Retro-inspired theme with warm amber glow\n\n' +
                              `Current theme: ${theme}\n\n` +
-                             'To change theme, type: theme [color]'
+                             'To apply a new theme, use: theme [color]'
                 }]);
                 return true;
             } else {
@@ -438,17 +441,16 @@ export default function DocumentationAssistant() {
         } else if (command === 'version') {
             setHistory(prev => [...prev, { 
                 type: 'response', 
-                content: 'DOX CLI v1.0.0'
+                content: 'DOX CLI v1.0.0 - Documentation Assistant\nRunning on Next.js and React'
             }]);
             return true;
         } else if (command === 'about') {
             setHistory(prev => [...prev, { 
                 type: 'response', 
                 content: '# DOX CLI - Documentation Assistant\n\n' +
-                         '• Version: 1.0.0\n' +
-                         '• Created by: Your Name\n' +
-                         '• Description: An AI-powered documentation assistant that helps answer programming questions.\n' +
-                         '• Built with: Next.js, React, TypeScript, and LangChain\n\n' +
+                         '• Created by: Florian Lup\n' +
+                         '• Description: A powerful AI-powered documentation assistant designed to provide answers to your programming questions.\n' +
+                         '• Technology: Built with Next.js, React, TypeScript, and LangChain.\n\n' +
                          'Copyright © ' + new Date().getFullYear()
             }]);
             return true;
@@ -511,8 +513,12 @@ export default function DocumentationAssistant() {
         }
     };
 
-    const handleTerminalClick = () => {
-        inputRef.current?.focus();
+    const handleTerminalClick = (e: React.MouseEvent) => {
+        // Don't focus input if user is selecting text
+        const selection = window.getSelection();
+        if (selection && selection.toString().length === 0) {
+            inputRef.current?.focus();
+        }
     };
 
     return (
@@ -639,7 +645,7 @@ export default function DocumentationAssistant() {
                     {history.map((item, index) => (
                         <div key={index} className="mb-4 last:mb-2">
                             {item.type === 'command' && (
-                                <div className="flex items-start">
+                                <div className={`flex items-start ${themeClasses.commandBg} py-1.5 px-2 rounded-md`}>
                                     <span className={`${themeClasses.prompt} mr-2 flex-shrink-0`}>user@dox:~$ </span> 
                                     <span className="text-white break-words">{item.content}</span>
                                 </div>
@@ -658,9 +664,9 @@ export default function DocumentationAssistant() {
                     ))}
                     
                     {/* Input field inside terminal */}
-                    <div className="flex items-start mt-1">
-                        <span className={`${themeClasses.prompt} mr-2 flex-shrink-0 mt-0.5`}>user@dox:~$</span>
-                        <div className="flex-1 flex items-center relative">
+                    <div className="flex items-start mt-3">
+                        <div className={`flex items-start w-full ${themeClasses.commandBg} py-1.5 px-2 rounded-md`}>
+                            <span className={`${themeClasses.prompt} mr-2 flex-shrink-0`}>user@dox:~$</span>
                             <form onSubmit={handleSubmit} className="w-full">
                                 <input
                                     ref={inputRef}
@@ -668,7 +674,7 @@ export default function DocumentationAssistant() {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     disabled={loading}
-                                    className={`flex-1 bg-transparent ${themeClasses.text} outline-none border-none py-0.5 pl-0.5 w-full font-mono text-base`}
+                                    className={`flex-1 bg-transparent text-white outline-none border-none py-0.5 w-full font-mono text-base`}
                                     placeholder={loading ? "Processing..." : "Type your question..."}
                                     autoFocus
                                 />
