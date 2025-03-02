@@ -14,7 +14,7 @@ export function TerminalFooter({ loading, onCancelRequest }: TerminalFooterProps
       <div className="flex items-center">
         {loading ? (
           <>
-            <span>Searching documentation...</span>
+            <span>Processing...</span>
             {onCancelRequest && (
               <button 
                 onClick={onCancelRequest}
