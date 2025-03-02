@@ -2,11 +2,8 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useTheme } from '../../contexts/ThemeContext';
 
 export function TerminalHeader() {
-  const { theme } = useTheme();
-  
   return (
     <div className="mb-2 flex items-center justify-between">
       <div className="flex items-center">

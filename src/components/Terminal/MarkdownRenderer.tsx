@@ -1,14 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
 
 interface MarkdownRendererProps {
   content: string;
 }
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
-  const { theme } = useTheme();
+  // Removing the unused theme variable
   
   // Split by lines
   const lines = content.split('\n');

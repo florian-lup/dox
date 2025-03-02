@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { CodeBlock } from './CodeBlock';
 
@@ -10,7 +9,6 @@ interface ResponseFormatterProps {
 }
 
 export function ResponseFormatter({ content }: ResponseFormatterProps) {
-  const { theme } = useTheme();
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
   
   // Copy code to clipboard

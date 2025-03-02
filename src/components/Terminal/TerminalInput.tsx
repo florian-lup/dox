@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
 
 interface TerminalInputProps {
   input: string;
