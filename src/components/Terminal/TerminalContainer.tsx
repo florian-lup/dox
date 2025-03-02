@@ -51,10 +51,10 @@ export function TerminalContainer({
     // Don't focus input if user is selecting text
     const selection = window.getSelection();
     if (selection && selection.toString().length === 0) {
-      // Find the input element and focus it
+      // Find the input element and focus it with preventScroll option
       const inputElement = terminalRef.current?.querySelector('input');
       if (inputElement) {
-        inputElement.focus();
+        inputElement.focus({preventScroll: true});
       }
     }
   };
@@ -177,7 +177,8 @@ export function TerminalContainer({
         /* Custom caret styling */
         input {
           caret-color: var(--theme-text);
-          color: white;
+          color: var(--theme-text);
+          background-color: transparent !important;
         }
         
         /* Placeholder styling */

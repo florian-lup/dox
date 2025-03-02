@@ -50,6 +50,9 @@ export function ResponseFormatter({ content }: ResponseFormatterProps) {
       const codeContent = parts[i].trim();
       const codeIndex = i;
       
+      // Skip empty code blocks
+      if (!codeContent.trim()) continue;
+      
       formattedParts.push(
         <CodeBlock 
           key={`code-${i}`}

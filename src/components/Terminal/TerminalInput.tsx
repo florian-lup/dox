@@ -12,15 +12,20 @@ interface TerminalInputProps {
 export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   
-  // Focus input when component mounts
+  // Focus input when component mounts, but don't auto-scroll
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus();
-      
-      // Clear any previous input value that might be cached by the browser
-      if (input === '') {
-        inputRef.current.value = '';
-      }
+      // Use setTimeout to delay focus to prevent unwanted scrolling
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus({preventScroll: true});
+          
+          // Clear any previous input value that might be cached by the browser
+          if (input === '') {
+            inputRef.current.value = '';
+          }
+        }
+      }, 0);
     }
   }, [input]);
   
@@ -44,9 +49,8 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
-            className="flex-1 bg-transparent text-white outline-none border-none py-0.5 w-full font-mono text-base"
+            className="flex-1 bg-transparent outline-none border-none py-0.5 w-full font-mono text-base"
             placeholder={loading ? "Searching documentation..." : "Ask a programming question or type a command..."}
-            autoFocus
             autoComplete="off" // Prevent browser from suggesting previous inputs
           />
         </form>

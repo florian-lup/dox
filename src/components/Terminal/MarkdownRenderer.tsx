@@ -24,7 +24,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
     formattedText = formattedText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
     
     // Process inline code (`text`)
-    formattedText = formattedText.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-gray-200 px-1 py-0.5 rounded text-sm">$1</code>');
+    formattedText = formattedText.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-gray-200 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
     
     // Process strikethrough (~~text~~)
     formattedText = formattedText.replace(/~~(.*?)~~/g, '<del>$1</del>');
@@ -80,7 +80,7 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         if (bulletMatch) {
           const [, indent, bulletType, content] = bulletMatch;
           const indentLevel = Math.floor(indent.length / 2);
-          const indentClass = `ml-${4 + indentLevel * 4}`;
+          const indentClass = `ml-${Math.min(4 + indentLevel * 4, 16)}`; // Cap the indentation level
           
           // Handle empty bullet points (just the bullet character)
           if (!content && bulletType === '•') {
