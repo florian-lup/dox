@@ -100,7 +100,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setTheme(savedTheme);
         applyThemeColors(savedTheme);
       }
-    } catch (e) {
+    } catch {
       // Ignore localStorage errors (can happen in SSR or if cookies are disabled)
     }
   }, []);
@@ -109,7 +109,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       localStorage.setItem('terminal-theme', theme);
-    } catch (e) {
+    } catch {
       // Ignore localStorage errors
     }
   }, [theme]);

@@ -10,8 +10,6 @@ interface TerminalHistoryProps {
 }
 
 export function TerminalHistory({ history }: TerminalHistoryProps) {
-  const { theme } = useTheme();
-  
   return (
     <>
       {history.map((item, index) => (

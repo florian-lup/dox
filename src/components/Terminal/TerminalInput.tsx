@@ -11,7 +11,6 @@ interface TerminalInputProps {
 }
 
 export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalInputProps) {
-  const { theme } = useTheme();
   const inputRef = useRef<HTMLInputElement>(null);
   
   // Focus input when component mounts
@@ -33,7 +32,7 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
       inputRef.current.value = '';
       setInput('');
     }
-  }, []);
+  }, [setInput]);
   
   return (
     <div className="flex items-start mt-3">
