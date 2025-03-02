@@ -481,7 +481,7 @@ export default function DocumentationAssistant() {
 
         try {
             // Add "thinking" message
-            setHistory(prev => [...prev, { type: 'response', content: 'Processing query...' }]);
+            setHistory(prev => [...prev, { type: 'response', content: 'Analyzing your question and searching documentation resources...' }]);
             
             const response = await fetch('/api/langchain', {
                 method: 'POST',
@@ -513,7 +513,7 @@ export default function DocumentationAssistant() {
         }
     };
 
-    const handleTerminalClick = (e: React.MouseEvent) => {
+    const handleTerminalClick = () => {
         // Don't focus input if user is selecting text
         const selection = window.getSelection();
         if (selection && selection.toString().length === 0) {
@@ -675,7 +675,7 @@ export default function DocumentationAssistant() {
                                     onChange={(e) => setInput(e.target.value)}
                                     disabled={loading}
                                     className={`flex-1 bg-transparent text-white outline-none border-none py-0.5 w-full font-mono text-base`}
-                                    placeholder={loading ? "Processing..." : "Type your question..."}
+                                    placeholder={loading ? "Processing your request..." : "Ask a programming question or type a command..."}
                                     autoFocus
                                 />
                             </form>
@@ -685,7 +685,7 @@ export default function DocumentationAssistant() {
                 
                 <div className="mt-2 text-xs text-gray-500 flex justify-between items-center px-1">
                     <div>Type <span className="text-gray-400">help</span> for available commands</div>
-                    <div>{loading ? 'Processing...' : 'Ready'}</div>
+                    <div>{loading ? 'Searching documentation...' : 'Ready'}</div>
                 </div>
             </div>
         </div>
