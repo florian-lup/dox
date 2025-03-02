@@ -1,0 +1,46 @@
+/* Theme-specific styles */
+:root {
+  /* Default theme values (will be overridden by JS) */
+  --theme-text: rgb(74, 222, 128);
+  --theme-bg: rgb(17, 24, 39);
+  --theme-prompt: rgb(96, 165, 250);
+  --theme-response: rgb(74, 222, 128);
+  --theme-highlight: rgba(22, 101, 52, 0.3);
+  --theme-link: rgb(134, 239, 172);
+  --theme-scrollbar-thumb: rgba(74, 222, 128, 0.5);
+  --theme-command-bg: rgba(22, 101, 52, 0.15);
+}
+
+/* Theme classes that use the CSS variables */
+.theme-text {
+  color: var(--theme-text) !important;
+}
+
+.theme-bg {
+  background-color: var(--theme-bg) !important;
+}
+
+.theme-prompt {
+  color: var(--theme-prompt) !important;
+}
+
+.theme-response {
+  color: var(--theme-response) !important;
+}
+
+.theme-highlight {
+  background-color: var(--theme-highlight) !important;
+}
+
+.theme-link {
+  color: var(--theme-link) !important;
+}
+
+.theme-command-bg {
+  background-color: var(--theme-command-bg) !important;
+}
+
+/* Ensure theme changes are applied immediately */
+.theme-updated * {
+  transition: none !important;
+} 

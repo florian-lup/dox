@@ -1,5 +1,5 @@
-import DocumentationAssistant from '../components/DocumentationAssistant';
+import TerminalApp from '../components/TerminalApp';
 
 export default function Home() {
-    return <DocumentationAssistant />;
+    return <TerminalApp />;
 }
