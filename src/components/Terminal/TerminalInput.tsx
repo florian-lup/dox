@@ -47,7 +47,7 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
             className="flex-1 bg-transparent text-white outline-none border-none py-0.5 w-full font-mono text-base"
-            placeholder={loading ? "Processing your request..." : "Ask a programming question or type a command..."}
+            placeholder={loading ? "Searching documentation..." : "Ask a programming question or type a command..."}
             autoFocus
             autoComplete="off" // Prevent browser from suggesting previous inputs
           />

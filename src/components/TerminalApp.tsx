@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 import { TerminalHeader } from './Terminal/TerminalHeader';
 import { TerminalContainer } from './Terminal/TerminalContainer';
@@ -16,11 +16,28 @@ function TerminalAppContent() {
   const [history, setHistory] = useState<HistoryItem[]>([
     { type: 'response', content: 'Welcome to DOX CLI v1.0.0 - Your intelligent documentation assistant.\nType `help` to see available commands or ask any programming question to get started.' }
   ]);
+  
+  // Add AbortController reference to handle API cancellation
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Force re-render when theme changes
   useEffect(() => {
     console.log('TerminalApp: Theme changed to:', theme);
   }, [theme]);
+
+  // Function to cancel ongoing API request
+  const handleCancelRequest = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort('Request cancelled by user');
+      abortControllerRef.current = null;
+      
+      // Add cancellation message without removing any previous messages
+      setHistory(prev => [...prev, { type: 'error', content: 'Request cancelled by user.' }]);
+      
+      // Reset loading state
+      setLoading(false);
+    }
+  };
 
   // This function will be called directly with the command text
   const handleNonCommandInput = async (commandText: string) => {
@@ -30,8 +47,12 @@ function TerminalAppContent() {
     setLoading(true);
 
     try {
-      // Add "thinking" message
-      setHistory(prev => [...prev, { type: 'response', content: 'Analyzing your question and searching documentation resources...' }]);
+      // Remove the "thinking" message - we don't want to show it anymore
+      // setHistory(prev => [...prev, { type: 'response', content: 'Analyzing your question and searching documentation resources...' }]);
+      
+      // Create a new AbortController for this request
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
       
       console.log('Sending API request to /api/langchain');
       const response = await fetch('/api/langchain', {
@@ -40,6 +61,7 @@ function TerminalAppContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ query: commandText }),
+        signal, // Pass the abort signal to fetch
       });
 
       console.log('API response received:', response.status);
@@ -50,20 +72,19 @@ function TerminalAppContent() {
         throw new Error(data.error || 'Failed to get explanation');
       }
 
-      // Remove the "thinking" message and add the actual response
-      setHistory(prev => [
-        ...prev.slice(0, prev.length - 1), 
-        { type: 'response', content: data.explanation }
-      ]);
+      // Since we're not adding a "thinking" message anymore, we just add the response
+      setHistory(prev => [...prev, { type: 'response', content: data.explanation }]);
     } catch (err) {
       console.error('API request error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
-      setHistory(prev => [
-        ...prev.slice(0, prev.length - 1),
-        { type: 'error', content: `Error: ${errorMessage}` }
-      ]);
+      
+      // Don't show error message if it was cancelled (AbortError)
+      if (err instanceof Error && err.name !== 'AbortError') {
+        const errorMessage = err.message || 'An error occurred';
+        setHistory(prev => [...prev, { type: 'error', content: `Error: ${errorMessage}` }]);
+      }
     } finally {
       setLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -86,7 +107,10 @@ function TerminalAppContent() {
         onSubmit={handleSubmit}
         onNonCommandInput={handleNonCommandInput}
       />
-      <TerminalFooter loading={loading} />
+      <TerminalFooter 
+        loading={loading} 
+        onCancelRequest={handleCancelRequest} 
+      />
     </div>
   );
 }
