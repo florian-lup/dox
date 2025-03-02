@@ -1,89 +1,121 @@
 import { ChatAnthropic } from '@langchain/anthropic';
-import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
-import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { PromptTemplate } from "@langchain/core/prompts";
+import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { ChatMessageHistory } from "@langchain/community/stores/message/in_memory";
+import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages";
 
-// Initialize the models and tools
+// Initialize the Anthropic model
 const model = new ChatAnthropic({
-    modelName: "claude-3-5-sonnet-20241022",
+    modelName: "claude-3-7-sonnet-20250219",
+    temperature: 0.3,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-// Create the search tool
-const searchTool = new TavilySearchResults({
-    apiKey: process.env.TAVILY_API_KEY,
-    maxResults: 3,
-    searchDepth: "basic",
-});
+// Store message histories for different sessions
+const sessionHistories = new Map<string, ChatMessageHistory>();
 
-// Create prompt template for generating explanations
-const explanationPrompt = PromptTemplate.fromTemplate(`
-You are a helpful programming assistant. Based on the following search results about {query}, 
-provide a clear and concise explanation with practical examples.
+// Create a chat prompt template with a system message and message history
+const chatPrompt = ChatPromptTemplate.fromMessages([
+    new SystemMessage(
+        `You are a helpful programming assistant specializing in documentation. 
+Provide clear and concise explanations with practical examples.
 
-Search Results:
-{searchResults}
-
-Instructions:
-1. Summarize the key concepts
+Follow these instructions:
+1. Explain the key concepts related to the query
 2. Provide at least one practical code example
 3. Keep the explanation clear and focused
-4. Highlight any important considerations or best practices
-
-Explanation:
-`);
+4. Highlight any important considerations or best practices`
+    ),
+    new MessagesPlaceholder("history"),
+    ["human", "{input}"],
+]);
 
 // Create the chain
 const chain = RunnableSequence.from([
     {
-        searchResults: async (input: { query: string }) => {
-            try {
-                // Validate query
-                if (!input.query || typeof input.query !== 'string' || input.query.trim() === '') {
-                    throw new Error('Invalid or empty search query');
-                }
-                
-                // Perform the search
-                const results = await searchTool.invoke(input.query);
-                
-                // Parse results if they're returned as a string
-                const parsedResults = typeof results === 'string' ? JSON.parse(results) : results;
-                
-                if (Array.isArray(parsedResults)) {
-                    // Extract content from each result and join
-                    return parsedResults
-                        .filter(r => r && r.content)  // Filter out any invalid results
-                        .map(r => `${r.title}\n${r.content}`)
-                        .join('\n\n');
-                } else {
-                    return 'No relevant results found.';
-                }
-            } catch (error: unknown) {
-                console.error('Error processing search results:', error);
-                throw error;
-            }
-        },
-        query: (input: { query: string }) => input.query,
+        input: (input) => input.input,
+        history: (input) => input.history || [],
     },
-    explanationPrompt,
+    chatPrompt,
     model,
     new StringOutputParser(),
 ]);
 
-export async function searchAndExplain(query: string) {
+// Default session ID to use when none is provided
+const DEFAULT_SESSION_ID = "default_session";
+
+// Get or create message history for a session
+function getMessageHistoryForSession(sessionId: string): ChatMessageHistory {
+    if (!sessionHistories.has(sessionId)) {
+        sessionHistories.set(sessionId, new ChatMessageHistory());
+    }
+    return sessionHistories.get(sessionId)!;
+}
+
+export async function searchAndExplain(query: string, sessionId?: string): Promise<string> {
     try {
         // Validate query
         if (!query || typeof query !== 'string' || query.trim() === '') {
-            throw new Error('Invalid or empty search query');
+            throw new Error('Invalid or empty query');
         }
         
-        const result = await chain.invoke({
-            query,
+        // Use the provided session ID or the default one
+        // This ensures consistency between requests
+        const actualSessionId = sessionId || DEFAULT_SESSION_ID;
+        
+        // Get the message history for this session
+        const messageHistory = getMessageHistoryForSession(actualSessionId);
+        
+        // Get all previous messages
+        const previousMessages = await messageHistory.getMessages();
+        
+        // Use the chain with the message history
+        const response = await chain.invoke({
+            input: query,
+            history: previousMessages,
         });
-        return result;
+        
+        // Add the new messages to history
+        await messageHistory.addMessage(new HumanMessage(query));
+        await messageHistory.addMessage(new AIMessage(response));
+        
+        return response;
     } catch (error: unknown) {
         console.error("Error in searchAndExplain:", error);
         throw error;
     }
+}
+
+// Utility function to clear a session's memory
+export function clearSessionMemory(sessionId: string): boolean {
+    if (sessionHistories.has(sessionId)) {
+        sessionHistories.delete(sessionId);
+        return true;
+    }
+    return false;
+}
+
+// Debug utility to get the current state of a session's memory
+export async function getSessionMemoryDebug(sessionId: string = DEFAULT_SESSION_ID): Promise<string> {
+    if (!sessionHistories.has(sessionId)) {
+        return `No memory found for session ${sessionId}`;
+    }
+    
+    const messageHistory = sessionHistories.get(sessionId)!;
+    const messages = await messageHistory.getMessages();
+    
+    return JSON.stringify(
+        messages.map(msg => ({
+            type: msg._getType(),
+            content: msg.content.toString().substring(0, 100) + (msg.content.toString().length > 100 ? '...' : '')
+        })),
+        null,
+        2
+    );
+}
+
+// Utility to list all active sessions
+export function listActiveSessions(): string[] {
+    return Array.from(sessionHistories.keys());
 } 
