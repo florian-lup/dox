@@ -44,14 +44,14 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
         <span className="text-purple-600 dark:text-purple-400 mr-1 sm:mr-2 flex-shrink-0 font-mono text-xs sm:text-sm md:text-base flex items-center">
           <span>user@dox:~$</span>
         </span>
-        <form onSubmit={onSubmit} className="w-full">
+        <form onSubmit={onSubmit} className="w-full flex items-center">
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
-            className="flex-1 bg-transparent outline-none border-none py-0.5 w-full font-mono text-xs sm:text-sm md:text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+            className="flex-1 bg-transparent outline-none border-none py-0.5 w-full font-mono text-xs sm:text-sm md:text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 placeholder:text-left"
             placeholder={loading ? "Searching documentation..." : "Ask a question or type a command..."}
             autoComplete="off" // Prevent browser from suggesting previous inputs
             style={{ caretColor: 'currentColor' }} // Ensure cursor color matches text color
