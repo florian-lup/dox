@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchAndExplain } from './DocumentationAssistant';
+import { searchAndExplain } from '../../../lib/services/DocumentationAssistant';
 import { AxiosError } from 'axios';
 
 // Validate environment variables

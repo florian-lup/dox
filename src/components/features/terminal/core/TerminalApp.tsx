@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
-import { TerminalHeader } from './Terminal/TerminalHeader';
-import { TerminalContainer } from './Terminal/TerminalContainer';
-import { TerminalFooter } from './Terminal/TerminalFooter';
-import { HistoryItem } from '../utils/commandProcessor';
+import { ThemeProvider, useTheme, HistoryItem } from '../../../../lib';
+import { 
+  TerminalContainer 
+} from './';
+import {
+  TerminalHeader,
+  TerminalFooter
+} from '../ui';
 
 // Create a wrapper component that has access to the theme context
 function TerminalAppContent() {

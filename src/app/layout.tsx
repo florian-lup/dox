@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Dox",
-  description: "Intelligent documentation assistance for programming and technical concepts",
+  description: "Intelligent documentation assistant for programming and technical concepts",
   icons: {
     icon: "/favicon.ico",
   },

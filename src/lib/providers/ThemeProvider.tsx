@@ -1,24 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-
-export type ThemeType = 'green' | 'blue' | 'amber';
-
-interface ThemeColors {
-  text: string;
-  bg: string;
-  prompt: string;
-  response: string;
-  highlight: string;
-  link: string;
-  scrollbarThumb: string;
-  commandBg: string;
-}
-
-interface ThemeContextType {
-  theme: ThemeType;
-  setTheme: (theme: ThemeType) => void;
-}
+import { ReactNode, useState, useEffect } from 'react';
+import { ThemeType, ThemeColors } from '../types/theme';
+import { ThemeContext } from '../hooks/useTheme';
 
 // Define theme colors using RGB values for direct CSS variable use
 const themeColors: Record<ThemeType, ThemeColors> = {
@@ -54,8 +38,6 @@ const themeColors: Record<ThemeType, ThemeColors> = {
   },
 };
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
 // Function to apply theme colors to CSS variables
 function applyThemeColors(theme: ThemeType) {
   const colors = themeColors[theme];
@@ -87,25 +69,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }, 0);
   }, [theme]);
   
-  // Apply initial theme colors on first render
-  // This runs server-side during SSR and client-side during hydration
+  // Apply initial theme colors on first render - always green
   useEffect(() => {
-    // Apply default theme immediately
+    // Always apply green theme initially
     applyThemeColors('green');
     
-    // Check if there's a saved theme preference in localStorage
-    try {
-      const savedTheme = localStorage.getItem('terminal-theme') as ThemeType | null;
-      if (savedTheme && ['green', 'blue', 'amber'].includes(savedTheme)) {
-        setTheme(savedTheme);
-        applyThemeColors(savedTheme);
-      }
-    } catch {
-      // Ignore localStorage errors (can happen in SSR or if cookies are disabled)
-    }
+    // Note: We're no longer checking localStorage for initial theme
+    // This ensures we always start with green regardless of saved preferences
   }, []);
   
   // Save theme preference to localStorage when it changes
+  // This still allows users to change themes during their session
   useEffect(() => {
     try {
       localStorage.setItem('terminal-theme', theme);
@@ -119,12 +93,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
 } 

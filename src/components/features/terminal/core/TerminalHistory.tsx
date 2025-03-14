@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { ResponseFormatter } from './ResponseFormatter';
-import { HistoryItem } from '../../utils/commandProcessor';
+import { ResponseFormatter } from '../renderers/ResponseFormatter';
+import { HistoryItem } from '../../../../lib/types/terminal';
 
 interface TerminalHistoryProps {
   history: HistoryItem[];

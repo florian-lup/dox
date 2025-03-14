@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../../../lib/hooks/useTheme';
 import { TerminalHistory } from './TerminalHistory';
 import { TerminalInput } from './TerminalInput';
-import { processCommand, HistoryItem } from '../../utils/commandProcessor';
+import { processCommand } from '../../../../lib/utils/commandProcessor';
+import { HistoryItem } from '../../../../lib/types/terminal';
 
 interface TerminalContainerProps {
   history: HistoryItem[];

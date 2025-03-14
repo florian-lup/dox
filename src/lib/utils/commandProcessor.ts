@@ -1,16 +1,11 @@
-import { ThemeType } from '../contexts/ThemeContext';
-
-export interface HistoryItem {
-  type: 'command' | 'response' | 'error';
-  content: string;
-}
-
-type SetHistoryFunction = React.Dispatch<React.SetStateAction<HistoryItem[]>>;
+import { ThemeType } from '../types/theme';
+import { HistoryItem } from '../types/terminal';
+import React from 'react';
 
 export function processCommand(
   command: string,
   history: HistoryItem[],
-  setHistory: SetHistoryFunction,
+  setHistory: React.Dispatch<React.SetStateAction<HistoryItem[]>>,
   theme: ThemeType,
   setTheme: (theme: ThemeType) => void
 ): boolean {
