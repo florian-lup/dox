@@ -40,7 +40,7 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
   
   return (
     <div className="flex items-center mt-2 sm:mt-3">
-      <div className="flex items-center w-full py-1 sm:py-1.5 px-1 sm:px-2 rounded-md bg-gray-100 dark:bg-gray-800">
+      <div className="flex items-center w-full py-1 sm:py-1.5 px-1 sm:px-2 rounded-md bg-gray-700/20">
         <span className="text-purple-600 dark:text-purple-400 mr-1 sm:mr-2 flex-shrink-0 font-mono text-xs sm:text-sm md:text-base flex items-center">
           <span>user@dox:~$</span>
         </span>
@@ -51,10 +51,10 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
-            className="flex-1 bg-transparent outline-none border-none py-0.5 w-full font-mono text-xs sm:text-sm md:text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 placeholder:text-left"
+            className="flex-1 bg-transparent outline-none border-none py-0.5 w-full font-mono text-xs sm:text-sm md:text-base theme-text placeholder:theme-text placeholder:opacity-70 placeholder:text-left"
             placeholder={loading ? "Searching documentation..." : "Ask a question or type a command..."}
-            autoComplete="off" // Prevent browser from suggesting previous inputs
-            style={{ caretColor: 'currentColor' }} // Ensure cursor color matches text color
+            autoComplete="off"
+            style={{ caretColor: 'var(--theme-text)' }}
           />
         </form>
       </div>
