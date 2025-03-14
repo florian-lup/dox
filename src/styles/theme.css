@@ -1,9 +1,9 @@
 /* Theme-specific styles */
 :root {
-  /* Default theme values (will be overridden by JS) */
+  /* Default theme values - setting to green theme by default to prevent flashing */
   --theme-text: rgb(74, 222, 128);
   --theme-bg: rgb(17, 24, 39);
-  --theme-prompt: rgb(96, 165, 250);
+  --theme-prompt: rgb(74, 222, 128);
   --theme-response: rgb(74, 222, 128);
   --theme-highlight: rgba(22, 101, 52, 0.3);
   --theme-link: rgb(134, 239, 172);
@@ -43,4 +43,4 @@
 /* Ensure theme changes are applied immediately */
 .theme-updated * {
   transition: none !important;
-} 
+}

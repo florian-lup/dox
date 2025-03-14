@@ -30,7 +30,14 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
     formattedText = formattedText.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
     
     // Process inline code (`text`)
-    formattedText = formattedText.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-gray-200 px-1 py-0.5 rounded text-sm font-mono">$1</code>');
+    formattedText = formattedText.replace(/`([^`]+)`/g, (match, codeContent) => {
+      // Escape HTML entities to prevent rendering issues with tags
+      const escapedContent = codeContent
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return `<code class="bg-gray-800 text-gray-200 px-1 py-0.5 rounded text-sm font-mono">${escapedContent}</code>`;
+    });
     
     // Process strikethrough (~~text~~)
     formattedText = formattedText.replace(/~~(.*?)~~/g, '<del>$1</del>');
