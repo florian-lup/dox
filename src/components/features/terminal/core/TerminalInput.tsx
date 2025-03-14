@@ -39,9 +39,11 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
   }, [setInput]);
   
   return (
-    <div className="flex items-start mt-3">
-      <div className="flex items-start w-full py-1.5 px-2 rounded-md bg-gray-100 dark:bg-gray-800">
-        <span className="text-purple-600 dark:text-purple-400 mr-2 flex-shrink-0 font-mono">user@dox:~$</span>
+    <div className="flex items-center mt-2 sm:mt-3">
+      <div className="flex items-center w-full py-1 sm:py-1.5 px-1 sm:px-2 rounded-md bg-gray-100 dark:bg-gray-800">
+        <span className="text-purple-600 dark:text-purple-400 mr-1 sm:mr-2 flex-shrink-0 font-mono text-xs sm:text-sm md:text-base flex items-center">
+          <span>user@dox:~$</span>
+        </span>
         <form onSubmit={onSubmit} className="w-full">
           <input
             ref={inputRef}
@@ -49,8 +51,8 @@ export function TerminalInput({ input, setInput, loading, onSubmit }: TerminalIn
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={loading}
-            className="flex-1 bg-transparent outline-none border-none py-0.5 w-full font-mono text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
-            placeholder={loading ? "Searching documentation..." : "Ask a programming question or type a command..."}
+            className="flex-1 bg-transparent outline-none border-none py-0.5 w-full font-mono text-xs sm:text-sm md:text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+            placeholder={loading ? "Searching documentation..." : "Ask a question or type a command..."}
             autoComplete="off" // Prevent browser from suggesting previous inputs
             style={{ caretColor: 'currentColor' }} // Ensure cursor color matches text color
           />

@@ -17,6 +17,12 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   
   // Function to process text formatting (bold, italic, inline code, strikethrough)
   const processTextFormatting = (text: string) => {
+    // Special case for the "Use ___ for actions" pattern that's causing black spots
+    text = text.replace(/Use\s+(_+)\s+for/g, 'Use <span class="text-gray-300">$1</span> for');
+    
+    // Handle any sequence of multiple underscores anywhere in the text
+    text = text.replace(/(_){2,}/g, '<span class="text-gray-300">$&</span>');
+    
     // Process bold text (**text**)
     let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
@@ -28,6 +34,17 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
     
     // Process strikethrough (~~text~~)
     formattedText = formattedText.replace(/~~(.*?)~~/g, '<del>$1</del>');
+    
+    // Process emphasis with underscores (_text_) - we need to handle this specially to avoid displaying ____ as black boxes
+    // Only replace underscores that are actually used for emphasis (single underscore at start and end of word)
+    formattedText = formattedText.replace(/(?<!\w)_([^_]+)_(?!\w)/g, '<em>$1</em>');
+    
+    // Handle multiple consecutive underscores that may be causing the black spots
+    // Replace sequences of 2 or more underscores with a styled span
+    formattedText = formattedText.replace(/_{2,}/g, (match) => {
+      // Replace with a span that renders the actual underscores with the correct styling
+      return `<span class="text-gray-300">${match}</span>`;
+    });
     
     // Process links in format [text](url)
     formattedText = formattedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {

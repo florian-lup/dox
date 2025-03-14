@@ -190,7 +190,7 @@ export function TerminalContainer({
       `}</style>
       <div 
         ref={terminalRef}
-        className="terminal-container flex-1 overflow-auto p-2 sm:p-3 bg-gray-900 rounded-lg border border-gray-700"
+        className="terminal-container flex-1 overflow-auto p-1 sm:p-2 md:p-3 bg-gray-900 rounded-lg border border-gray-700"
         onClick={handleTerminalClick}
       >
         <TerminalHistory history={history} />

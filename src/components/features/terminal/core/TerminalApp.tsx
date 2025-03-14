@@ -99,7 +99,7 @@ function TerminalAppContent() {
   };
 
   return (
-    <div className="h-screen bg-black p-2 sm:p-4 font-mono flex flex-col overflow-hidden" style={{ color: 'var(--theme-text)' }}>
+    <div className="h-screen w-full bg-black p-1 sm:p-2 md:p-4 font-mono flex flex-col overflow-hidden max-w-full" style={{ color: 'var(--theme-text)' }}>
       <TerminalHeader />
       <TerminalContainer 
         history={history}
