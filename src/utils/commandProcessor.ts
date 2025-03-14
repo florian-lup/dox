@@ -100,7 +100,8 @@ export function processCommand(
       content: '# DOX CLI - Documentation Assistant\n\n' +
                '• Created by: Florian Lup\n' +
                '• Description: A powerful AI-powered documentation assistant designed to provide answers to your programming questions.\n' +
-               '• Technology: Built with Next.js, React, TypeScript, and LangChain.\n\n' +
+               '• Technology: Built with Next.js, React, TypeScript, and LangChain.\n' +
+               '• GitHub: https://github.com/florian-lup/dox\n\n' +
                'Copyright © ' + new Date().getFullYear()
     }]);
     return true;

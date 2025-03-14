@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchAndExplain, clearSessionMemory } from './DocumentationAssistant';
+import { searchAndExplain } from './DocumentationAssistant';
 import { AxiosError } from 'axios';
 
 // Validate environment variables
@@ -21,16 +21,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
-        const { query, sessionId, action } = body;
-
-        // Handle clear memory action
-        if (action === 'clearMemory' && sessionId) {
-            const cleared = clearSessionMemory(sessionId);
-            return NextResponse.json({ 
-                success: cleared, 
-                message: cleared ? 'Session memory cleared' : 'Session not found' 
-            });
-        }
+        const { query } = body;
 
         if (!query) {
             return NextResponse.json(
@@ -39,15 +30,11 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Pass the sessionId to maintain conversation context
-        const explanation = await searchAndExplain(query, sessionId);
-        
-        // Generate a new sessionId if one wasn't provided
-        const responseSessionId = sessionId || `session_${Date.now()}`;
+        // Process query without sessionId
+        const explanation = await searchAndExplain(query);
         
         return NextResponse.json({ 
-            explanation, 
-            sessionId: responseSessionId 
+            explanation
         });
     } catch (error: unknown) {
         console.error('Error processing request:', error);

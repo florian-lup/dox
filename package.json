@@ -12,7 +12,6 @@
     "@langchain/anthropic": "^0.3.13",
     "@langchain/community": "^0.3.31",
     "@langchain/core": "^0.3.40",
-    "@tavily/core": "^0.3.1",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vercel/analytics": "^1.5.0",
     "dotenv": "^16.4.7",
