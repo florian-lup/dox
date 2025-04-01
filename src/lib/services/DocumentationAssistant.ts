@@ -45,7 +45,7 @@ export async function searchAndExplain(query: string): Promise<string> {
         // Initialize the Anthropic model (only on server-side)
         const model = new ChatAnthropic({
             modelName: "claude-3-7-sonnet-20250219",
-            temperature: 0.3,
+            temperature: 0,
             anthropicApiKey: process.env.ANTHROPIC_API_KEY,
         });
         
