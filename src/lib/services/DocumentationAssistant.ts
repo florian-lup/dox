@@ -35,26 +35,29 @@ export async function searchAndExplain(query: string): Promise<string> {
         if (!query || typeof query !== 'string' || query.trim() === '') {
             throw new Error('Invalid or empty query');
         }
-        
+
         // Since this code might run on both client and server, we need to ensure
         // we only initialize the model on the server where the API key is available
         if (typeof window !== 'undefined') {
             throw new Error('This function can only be executed from server-side code');
         }
-        
+
         // Initialize the Anthropic model (only on server-side)
         const model = new ChatAnthropic({
-            modelName: "claude-3-7-sonnet-20250219",
-            temperature: 0,
+            modelName: "claude-haiku-5-5",
             anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+            // LangChain defaults topP to -1 and still sends it. This model rejects that value.
+            invocationKwargs: {
+                top_p: undefined,
+            },
         });
-        
+
         // Create a chat prompt template with a system message
         const chatPrompt = ChatPromptTemplate.fromMessages([
             new SystemMessage(SYSTEM_PROMPT),
             ["human", "{input}"],
         ]);
-        
+
         // Create the chain
         const chain = RunnableSequence.from([
             {
@@ -64,12 +67,12 @@ export async function searchAndExplain(query: string): Promise<string> {
             model,
             new StringOutputParser(),
         ]);
-        
+
         // Use the chain without maintaining message history
         const response = await chain.invoke({
             input: query,
         });
-        
+
         return response;
     } catch (error: unknown) {
         console.error("Error in searchAndExplain:", error);
